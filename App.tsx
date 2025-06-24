@@ -1,50 +1,49 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { NavigationContainer } from "@react-navigation/native"
-import { createStackNavigator } from "@react-navigation/stack"
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { StatusBar } from "expo-status-bar"
-import { Ionicons } from "@expo/vector-icons"
+import { Platform } from "react-native"
+
+// Only import navigation on native platforms
+let NavigationContainer, createStackNavigator, createBottomTabNavigator
+let StatusBar, Ionicons
+
+if (Platform.OS !== "web") {
+  const navigation = require("@react-navigation/native")
+  const stack = require("@react-navigation/stack")
+  const tabs = require("@react-navigation/bottom-tabs")
+  const expo = require("expo-status-bar")
+  const icons = require("@expo/vector-icons")
+
+  NavigationContainer = navigation.NavigationContainer
+  createStackNavigator = stack.createStackNavigator
+  createBottomTabNavigator = tabs.createBottomTabNavigator
+  StatusBar = expo.StatusBar
+  Ionicons = icons.Ionicons
+}
+
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "./config/firebase"
 import { AuthProvider } from "./context/AuthContext"
 import { ChatProvider } from "./context/ChatContext"
-import LoginScreen from "./screens/LoginScreen"
-import SignupScreen from "./screens/SignupScreen"
-import ChatListScreen from "./screens/ChatListScreen"
-import UsersScreen from "./screens/UsersScreen"
-import SettingsScreen from "./screens/SettingsScreen"
-import ChatScreen from "./screens/ChatScreen"
-import LoadingScreen from "./screens/LoadingScreen"
 
-const Stack = createStackNavigator()
-const Tab = createBottomTabNavigator()
-
-function MainTabs() {
+// Web fallback component
+function WebFallback() {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName
-          if (route.name === "Chats") {
-            iconName = focused ? "chatbubbles" : "chatbubbles-outline"
-          } else if (route.name === "Users") {
-            iconName = focused ? "people" : "people-outline"
-          } else if (route.name === "Settings") {
-            iconName = focused ? "settings" : "settings-outline"
-          }
-          return <Ionicons name={iconName} size={size} color={color} />
-        },
-        tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "gray",
-        headerShown: false,
-      })}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        fontFamily: "Arial, sans-serif",
+      }}
     >
-      <Tab.Screen name="Chats" component={ChatListScreen} />
-      <Tab.Screen name="Users" component={UsersScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-    </Tab.Navigator>
+      <div style={{ textAlign: "center" }}>
+        <h1>Messenger Chat App</h1>
+        <p>This app is designed for mobile devices.</p>
+        <p>Please use Expo Go or a mobile simulator to view the full experience.</p>
+      </div>
+    </div>
   )
 }
 
@@ -61,33 +60,46 @@ export default function App() {
     return unsubscribe
   }, [])
 
+  // Return web fallback for web platform
+  if (Platform.OS === "web") {
+    return <WebFallback />
+  }
+
+  // Native app logic would go here
+  // For now, return a simple loading state
   if (loading) {
-    return <LoadingScreen />
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        Loading...
+      </div>
+    )
   }
 
   return (
     <AuthProvider>
       <ChatProvider>
-        <NavigationContainer>
-          <StatusBar style="auto" />
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            {user ? (
-              <>
-                <Stack.Screen name="MainTabs" component={MainTabs} />
-                <Stack.Screen
-                  name="Chat"
-                  component={ChatScreen}
-                  options={{ headerShown: true, headerBackTitleVisible: false }}
-                />
-              </>
-            ) : (
-              <>
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Signup" component={SignupScreen} />
-              </>
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            fontFamily: "Arial, sans-serif",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <h1>Messenger Chat App</h1>
+            <p>Ready for mobile development!</p>
+            <p>Use Expo CLI to run on mobile devices.</p>
+          </div>
+        </div>
       </ChatProvider>
     </AuthProvider>
   )

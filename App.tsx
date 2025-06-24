@@ -1,51 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Platform } from "react-native"
-
-// Only import navigation on native platforms
-let NavigationContainer, createStackNavigator, createBottomTabNavigator
-let StatusBar, Ionicons
-
-if (Platform.OS !== "web") {
-  const navigation = require("@react-navigation/native")
-  const stack = require("@react-navigation/stack")
-  const tabs = require("@react-navigation/bottom-tabs")
-  const expo = require("expo-status-bar")
-  const icons = require("@expo/vector-icons")
-
-  NavigationContainer = navigation.NavigationContainer
-  createStackNavigator = stack.createStackNavigator
-  createBottomTabNavigator = tabs.createBottomTabNavigator
-  StatusBar = expo.StatusBar
-  Ionicons = icons.Ionicons
-}
-
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "./config/firebase"
 import { AuthProvider } from "./context/AuthContext"
 import { ChatProvider } from "./context/ChatContext"
-
-// Web fallback component
-function WebFallback() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div style={{ textAlign: "center" }}>
-        <h1>Messenger Chat App</h1>
-        <p>This app is designed for mobile devices.</p>
-        <p>Please use Expo Go or a mobile simulator to view the full experience.</p>
-      </div>
-    </div>
-  )
-}
+import { MessengerApp } from "./components/MessengerApp"
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -60,24 +20,10 @@ export default function App() {
     return unsubscribe
   }, [])
 
-  // Return web fallback for web platform
-  if (Platform.OS === "web") {
-    return <WebFallback />
-  }
-
-  // Native app logic would go here
-  // For now, return a simple loading state
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        Loading...
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     )
   }
@@ -85,21 +31,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ChatProvider>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-            fontFamily: "Arial, sans-serif",
-          }}
-        >
-          <div style={{ textAlign: "center" }}>
-            <h1>Messenger Chat App</h1>
-            <p>Ready for mobile development!</p>
-            <p>Use Expo CLI to run on mobile devices.</p>
-          </div>
-        </div>
+        <MessengerApp user={user} />
       </ChatProvider>
     </AuthProvider>
   )
